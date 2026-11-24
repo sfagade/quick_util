@@ -1,0 +1,11 @@
+ python3 renamer.py ~/Videos/motto/motto/vid/ '*.mov' --apply
+
+ python3 encrypt_media.py encrypt vacation.jpg vacation.enc --password "secret"
+
+ python3 encrypt_media.py decrypt vacation.enc restored_photo --password "secret"
+# Writes restored_photo.jpg
+
+python3 encrypt_media.py encrypt clip.mp4 clip.enc --password "secret"
+python3 encrypt_media.py decrypt clip.enc restored_clip.mp4 --password "secret"
+
+uv run src/encrypt_media.py encrypt b61tm0wfch5h.mp4 b61tm0wfch5h.enc --password "namer"
