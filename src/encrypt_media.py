@@ -124,7 +124,7 @@ def path_walker(
     password: str,
     apply: bool = False,
 ) -> None:
-    print(f"Inside walker: {file_path}")
+    print(f"Inside walker: {file_path} -- {apply}")
 
     for path in file_path.rglob("*"):
         if not path.is_file():
@@ -132,12 +132,11 @@ def path_walker(
 
         file_name = f"{path.stem}"
         file_type = path.suffix
-        print(f"Found {file_name} -- {file_type}")
 
         if file_type in extensions:
             if apply:
-                print(f"Will encrypt file now")
-                encrypt_media(path, path.with_name(f'{file_name}.enc'), password)
+                print(f"Encrypting {path} in dir")
+                encrypt_media(path, path.with_name(f"{file_name}.enc"), password)
         else:
             print(f"Ignoring file")
 
@@ -146,6 +145,21 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Encrypt or decrypt video and picture files using AES-256-GCM.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    encd = subparsers.add_parser("encryptd", help="Encrypt a video or picture in folder")
+    encd.add_argument("input", type=Path, help="Target folder")
+    encd.add_argument(
+        "--extensions",
+        nargs="+",  # Use "*" to allow 0 or more; "+" requires at least 1
+        default=[],
+        help="Media type by extension",
+    )
+    encd.add_argument("--password", required=True, help="Encryption password")
+    encd.add_argument(
+        "--apply",
+        action="store_true",
+        help="Actually rename files (without this flag, only prints a dry run)",
+    )
+
     enc = subparsers.add_parser("encrypt", help="Encrypt a video or picture file")
     enc.add_argument("input", type=Path, help="Target folder")
     enc.add_argument(
@@ -153,18 +167,7 @@ def main() -> None:
         type=Path,
         help="Output decrypted file path (extension auto-restored if omitted)",
     )
-    enc.add_argument(
-        "--extensions",
-        nargs="+",  # Use "*" to allow 0 or more; "+" requires at least 1
-        default=[],
-        help="Media type by extension",
-    )
     enc.add_argument("--password", required=True, help="Encryption password")
-    parser.add_argument(
-        "--apply",
-        action="store_true",
-        help="Actually rename files (without this flag, only prints a dry run)",
-    )
 
     dec = subparsers.add_parser("decrypt", help="Decrypt a video or picture file")
     dec.add_argument("input", type=Path, help="Input encrypted file path")
@@ -178,19 +181,17 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        if args.command == "encrypt":
-            if (
-                not args.input.is_dir() and not args.input.is_file()
-            ):  # when encrypting input can either be a file or a folder
+        if args.command == "encryptd":
+            if not args.input.is_dir():  # when encrypting input can either be a file or a folder
                 raise SystemExit(f"Error: '{args.input}' does not exist.")
 
-            if args.input.is_dir():
-                print(f"Encrypting all media files in {args.input}")
-                if not args.extensions:
-                    raise SystemExit(f"Error: Extensions is required for folder encrypt.")
-                path_walker(args.input, args.extensions, args.password)
-            else:
-                encrypt_media(args.input, args.output, args.password)
+            path_walker(args.input, args.extensions, args.password, args.apply)
+
+        elif args.command == "encrypt":
+            if not args.input.is_file():  # when encrypting input can either be a file or a folder
+                raise SystemExit(f"Error: '{args.input}' does not exist.")
+
+            encrypt_media(args.input, args.output, args.password)
         elif args.command == "decrypt":
             if not args.input.is_file():  # when decrypting we need input to be a file
                 raise SystemExit(f"Error: '{args.input}' does not exist.")
