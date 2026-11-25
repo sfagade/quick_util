@@ -36,9 +36,7 @@ def rename_matching_files(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Recursively rename matching files to random names."
-    )
+    parser = argparse.ArgumentParser(description="Recursively rename matching files to random names.")
     parser.add_argument("folder", type=Path, help="Target directory path")
     parser.add_argument(
         "pattern",
