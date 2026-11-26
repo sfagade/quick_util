@@ -10,4 +10,4 @@ python3 encrypt_media.py decrypt clip.enc restored_clip.mp4 --password "secret"
 
 uv run src/encrypt_media.py encrypt b61tm0wfch5h.mp4 b61tm0wfch5h.enc --password "namer"
 
-uv run src/encrypt_media.py encryptd /home/sfagade/Videos/motto/motto/img/ --extensions .jpeg .png --password "namer" --apply
+uv run src/encrypt_media.py encryptd ~/Videos/motto/motto/img/ --extensions .jpeg .png --password "namer" --apply
